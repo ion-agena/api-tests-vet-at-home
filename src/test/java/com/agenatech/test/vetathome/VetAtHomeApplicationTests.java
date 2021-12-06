@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.hateoas.client.LinkDiscoverer;
-import org.springframework.hateoas.mediatype.hal.HalLinkDiscoverer;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
@@ -44,7 +42,7 @@ class VetAtHomeApplicationTests {
 	public void t1(){
 		AuthResponse response = keycloakService.defaultLogin();
 		log.debug("------- res {}", response.accessToken());
-		assertTrue(true);
+		assertFalse(response.accessToken().isEmpty());
 	}
 
 	@Test
@@ -52,7 +50,7 @@ class VetAtHomeApplicationTests {
 		UserProfile myProfile = gatewayService.getMyProfile();
 		log.debug("------- profile {}", myProfile);
 
-		assertFalse(myProfile.getEmail().isEmpty());
+		assertTrue(DEFAULT_USER_ID.equals(uriUtils.getIdFromLink(uriUtils.getSelfLinkFromUser(myProfile))));
 	}
 
 	@Test
@@ -87,8 +85,8 @@ class VetAtHomeApplicationTests {
 		PetProfile retrievedPet = gatewayService.saveAndLink(generatedPetProfile);
 		log.debug("-------retrievedPet {}", retrievedPet);
 
-		String petLink = retrievedPet.get_links().getPet().get("href");
-		log.debug("-------href {}", petLink);
+		String petLink = uriUtils.getPetLinkFromPet(retrievedPet);
+				log.debug("-------href {}", petLink);
 
 		String petId = uriUtils.getIdFromLink(petLink);
 
@@ -96,7 +94,7 @@ class VetAtHomeApplicationTests {
 
 		List<UserProfile> owners = gatewayService.searchProfilesByPetIds(Arrays.asList(petId)).get_embedded().getProfiles();
 
-		boolean isOwnerPresent = owners.stream().map(owner -> owner.get_links().getSelf().get("href") )
+		boolean isOwnerPresent = owners.stream().map(owner -> uriUtils.getSelfLinkFromUser(owner) )
 				.map(link -> uriUtils.getIdFromLink(link)).collect(Collectors.toList())
 				.contains(DEFAULT_USER_ID);
 
