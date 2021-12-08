@@ -1,5 +1,6 @@
 package com.agenatech.test.vetathome.client;
 
+import com.agenatech.test.vetathome.payload.request.UserPetLink;
 import com.agenatech.test.vetathome.payload.response.EmbeddedProfilesResponseRoot;
 import com.agenatech.test.vetathome.payload.response.PetProfile;
 import com.agenatech.test.vetathome.payload.response.UserProfile;
@@ -29,7 +30,7 @@ public interface ApiGwClient {
     @PostMapping(value = "${profiles.service-url}/me/pets", consumes = MediaType.APPLICATION_JSON_VALUE)
     PetProfile saveAndLink(PetProfile petProfile, @RequestHeader("Authorization") String token);
 
-    @PutMapping(value = "${profiles.service-pets-url}/{petId}/owner/me", consumes = MediaType.APPLICATION_JSON_VALUE)
-    PetProfile link(@PathVariable("petId") String petId, @RequestHeader("Authorization") String token);
+    @PutMapping(value = "${profiles.root-service-url}/me/pets/link", consumes = MediaType.APPLICATION_JSON_VALUE)
+    PetProfile link(UserPetLink userPetLink, @RequestHeader("Authorization") String token);
 
 }

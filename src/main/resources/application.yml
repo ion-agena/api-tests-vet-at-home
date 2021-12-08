@@ -2,7 +2,6 @@ server:
   port: 9091
 auth-server:
   url: ${keycloak-client.server-url}
-#  users-uri: auth/admin/realms/${keycloak-client.realm}/users
   client: web
   token-uri: auth/realms/${keycloak-client.realm}/protocol/openid-connect/token
   logout-uri: auth/realms/${keycloak-client.realm}/protocol/openid-connect/logout
@@ -18,10 +17,13 @@ profiles:
   profiles-me-url: api/v1/profiles/me
   pets-url: api/v1/pets
   service-url: api/v1/service/profile
+  root-service-url: api/v1/service
   service-pets-url: api/v1/service/pets
   search-profiles-url: api/v1/profiles/search
 api-gw:
   url: http://localhost:8081
+test:
+  test-user-id: 04d89ae7-d834-4327-a769-44cfe445109b
 feign.client.config.default.loggerLevel: full
 logging.level:
     com.agenatech: DEBUG

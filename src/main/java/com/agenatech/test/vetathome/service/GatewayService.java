@@ -1,6 +1,7 @@
 package com.agenatech.test.vetathome.service;
 
 import com.agenatech.test.vetathome.client.ApiGwClient;
+import com.agenatech.test.vetathome.payload.request.UserPetLink;
 import com.agenatech.test.vetathome.payload.response.EmbeddedProfilesResponseRoot;
 import com.agenatech.test.vetathome.payload.response.PetProfile;
 import com.agenatech.test.vetathome.payload.response.UserProfile;
@@ -27,8 +28,8 @@ public class GatewayService {
         return apiGwClient.searchProfilesByPets(petIds);
     }
 
-    public UserProfile putProfile(UserProfile profile){
-        return apiGwClient.putProfile(profile.getAvatarUrl(), profile);
+    public UserProfile putProfile(String id, UserProfile profile){
+        return apiGwClient.putProfile(id, profile);
     }
 
     public PetProfile savePet(PetProfile petProfile){
@@ -40,10 +41,9 @@ public class GatewayService {
         return apiGwClient.saveAndLink(petProfile, "Bearer "  + bearerToken);
     }
 
-//    todo change implementation to link to other people
-    public void link(String petId){
+    public void link(UserPetLink userPetLink){
         String bearerToken = keycloakService.defaultLogin().accessToken();
-        apiGwClient.link(petId, "Bearer "  + bearerToken);
+        apiGwClient.link(userPetLink, "Bearer "  + bearerToken);
     }
 
 }
