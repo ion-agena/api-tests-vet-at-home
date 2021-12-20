@@ -77,16 +77,6 @@ class VetAtHomeApplicationTests {
 		assertTrue(retrievedProfile.getEmail().equals(generatedProfile.getEmail()));
 	}
 
-	@Test
-	public void savePet(){
-		PetProfile generatedPetProfile = dataManager.generatePetProfile();
-
-		PetProfile retrievedPet = gatewayService.savePet(generatedPetProfile);
-		log.debug("-------retrievedPet {}", retrievedPet);
-//		todo check empty owners
-
-		assertTrue(retrievedPet.getAvatarUrl().equals(generatedPetProfile.getAvatarUrl()));
-	}
 
 
 	@Test
