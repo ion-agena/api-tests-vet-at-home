@@ -47,7 +47,11 @@ class VetAtHomeApplicationTests {
 		UserProfile generatedProfile = dataManager.generateUserProfile();
 		log.debug("-------generated profile {}", generatedProfile);
 
-		UserProfile retrievedProfile = gatewayService.putProfile(DEFAULT_USER_ID, generatedProfile);
+		try {
+			UserProfile retrievedProfile = gatewayService.putProfile(DEFAULT_USER_ID, generatedProfile);
+		} catch (Exception exception){
+			log.debug("user already exists");
+		}
 	}
 
 
