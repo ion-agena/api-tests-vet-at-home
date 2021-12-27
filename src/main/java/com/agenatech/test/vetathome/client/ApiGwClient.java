@@ -27,10 +27,12 @@ public interface ApiGwClient {
     @PostMapping(value = "${profiles.pets-url}", consumes = MediaType.APPLICATION_JSON_VALUE)
     PetProfile savePet(PetProfile petProfile);
 
-    @PostMapping(value = "${profiles.service-url}/me/pets", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "${profiles.profiles-me-url}/pets", consumes = MediaType.APPLICATION_JSON_VALUE)
     PetProfile saveAndLink(PetProfile petProfile, @RequestHeader("Authorization") String token);
 
     @PutMapping(value = "${profiles.root-service-url}/me/pets/link", consumes = MediaType.APPLICATION_JSON_VALUE)
     PetProfile link(UserPetLink userPetLink, @RequestHeader("Authorization") String token);
 
+    @DeleteMapping(value = "${profiles.pets-url}/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    void deletePet(@PathVariable("id") String id);
 }

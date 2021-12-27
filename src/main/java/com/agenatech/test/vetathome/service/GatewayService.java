@@ -46,4 +46,9 @@ public class GatewayService {
         apiGwClient.link(userPetLink, "Bearer "  + bearerToken);
     }
 
+    public void deletePet(String petId){
+        apiGwClient.deletePet(petId);
+    }
+
+
 }

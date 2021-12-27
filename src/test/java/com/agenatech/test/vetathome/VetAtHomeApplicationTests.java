@@ -166,6 +166,36 @@ class VetAtHomeApplicationTests {
 		assertFalse(isUserPresentInTheList(UUID.randomUUID().toString(), owners));
 	}
 
+	@Test
+	public void linkAndDeletePet(){
+		PetProfile generatedPetProfile = dataManager.generatePetProfile();
+		PetProfile retrievedPet = gatewayService.saveAndLink(generatedPetProfile);
+
+		UserProfile generatedProfile = dataManager.generateUserProfile();
+
+		UserProfile retrievedProfile = gatewayService.putProfile(generatedProfile.getAvatarUrl(), generatedProfile);
+
+		UserPetLink newLink = UserPetLink.builder()
+				.userLink(uriUtils.getSelfLinkFromUser(retrievedProfile))
+				.petLink(uriUtils.getPetLinkFromPet(retrievedPet))
+				.build();
+
+
+		gatewayService.link(newLink);
+
+		String petId = uriUtils.getIdFromLink(uriUtils.getPetLinkFromPet(retrievedPet));
+		log.debug("-------petId {}", petId);
+
+		List<UserProfile> owners = gatewayService.searchProfilesByPetIds(Arrays.asList(petId)).get_embedded().getProfiles();
+
+		assertTrue(isUserPresentInTheList(DEFAULT_USER_ID, owners));
+
+		gatewayService.deletePet(petId);
+
+
+	}
+
+
 	private boolean isUserPresentInTheList(String userId, List<UserProfile> owners){
 		return owners.stream().map(owner -> uriUtils.getSelfLinkFromUser(owner) )
 				.map(link -> uriUtils.getIdFromLink(link)).collect(Collectors.toList())
