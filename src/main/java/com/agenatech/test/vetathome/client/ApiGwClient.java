@@ -1,15 +1,12 @@
 package com.agenatech.test.vetathome.client;
 
 import com.agenatech.test.vetathome.payload.request.UserPetLink;
-import com.agenatech.test.vetathome.payload.response.EmbeddedProfilesResponseRoot;
 import com.agenatech.test.vetathome.payload.response.PetProfile;
 import com.agenatech.test.vetathome.payload.response.UserProfile;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @FeignClient(url = "${api-gw.url}", value = "${api-gw.url}")
 @Service
@@ -18,8 +15,8 @@ public interface ApiGwClient {
     @GetMapping(value = "${profiles.profiles-me-url}", consumes = MediaType.APPLICATION_JSON_VALUE)
     UserProfile getMyProfile(@RequestHeader("Authorization") String token);
 
-    @GetMapping(value = "${profiles.search-profiles-url}/findByPetsIdIn", consumes = MediaType.APPLICATION_JSON_VALUE)
-    EmbeddedProfilesResponseRoot searchProfilesByPets(@RequestParam("petIds") List<String> petIds);
+    @GetMapping(value = "${profiles.pets-url}/{id}/owner", consumes = MediaType.APPLICATION_JSON_VALUE)
+    UserProfile getThePetOwner(@PathVariable("id") String id);
 
     @PutMapping(value = "${profiles.profiles-url}/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     UserProfile putProfile(@PathVariable("id") String id, UserProfile profile);

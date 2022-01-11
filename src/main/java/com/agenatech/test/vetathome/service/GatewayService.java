@@ -24,8 +24,8 @@ public class GatewayService {
     }
 
 
-    public EmbeddedProfilesResponseRoot searchProfilesByPetIds(List<String> petIds){
-        return apiGwClient.searchProfilesByPets(petIds);
+    public UserProfile getThePetOwner(String petId){
+        return apiGwClient.getThePetOwner(petId);
     }
 
     public UserProfile putProfile(String id, UserProfile profile){

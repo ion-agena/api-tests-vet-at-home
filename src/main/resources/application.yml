@@ -21,7 +21,8 @@ profiles:
   service-pets-url: api/v1/service/pets
   search-profiles-url: api/v1/profiles/search
 api-gw:
-  url: http://localhost:8081
+  url: http://vet-api-dev.agenadev.com
+#  url: http://localhost:8081
 test:
   test-user-id: 04d89ae7-d834-4327-a769-44cfe445109b
 feign.client.config.default.loggerLevel: full

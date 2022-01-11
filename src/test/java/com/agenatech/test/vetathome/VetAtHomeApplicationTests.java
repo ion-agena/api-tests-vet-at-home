@@ -1,6 +1,5 @@
 package com.agenatech.test.vetathome;
 
-import com.agenatech.test.vetathome.payload.request.UserPetLink;
 import com.agenatech.test.vetathome.payload.response.AuthResponse;
 import com.agenatech.test.vetathome.payload.response.PetProfile;
 import com.agenatech.test.vetathome.payload.response.UserProfile;
@@ -16,11 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -97,111 +91,11 @@ class VetAtHomeApplicationTests {
 
 		log.debug("-------petId {}", petId);
 
-		List<UserProfile> owners = gatewayService.searchProfilesByPetIds(Arrays.asList(petId)).get_embedded().getProfiles();
+		UserProfile owner = gatewayService.getThePetOwner(petId);
+		String ownerLink = uriUtils.getSelfLinkFromUser(owner);
 
-		assertTrue(isUserPresentInTheList(DEFAULT_USER_ID, owners));
+		assertTrue(DEFAULT_USER_ID.equals(uriUtils.getIdFromLink(ownerLink)));
 	}
-
-	@Test
-	public void link(){
-		PetProfile generatedPetProfile = dataManager.generatePetProfile();
-		PetProfile retrievedPet = gatewayService.saveAndLink(generatedPetProfile);
-		log.debug("-------retrievedPet {}", retrievedPet);
-
-		UserProfile generatedProfile = dataManager.generateUserProfile();
-		log.debug("-------generated profile {}", generatedProfile);
-
-		UserProfile retrievedProfile = gatewayService.putProfile(generatedProfile.getAvatarUrl(), generatedProfile);
-		log.debug("-------retrieved profile {}", retrievedProfile);
-
-		UserPetLink newLink = UserPetLink.builder()
-				.userLink(uriUtils.getSelfLinkFromUser(retrievedProfile))
-				.petLink(uriUtils.getPetLinkFromPet(retrievedPet))
-				.build();
-
-
-		gatewayService.link(newLink);
-
-		String petId = uriUtils.getIdFromLink(uriUtils.getPetLinkFromPet(retrievedPet));
-		log.debug("-------petId {}", petId);
-
-		List<UserProfile> owners = gatewayService.searchProfilesByPetIds(Arrays.asList(petId)).get_embedded().getProfiles();
-
-		assertTrue(isUserPresentInTheList(DEFAULT_USER_ID, owners));
-	}
-
-
-	@Test
-	public void linkFalse(){
-		PetProfile generatedPetProfile = dataManager.generatePetProfile();
-		PetProfile retrievedPet = gatewayService.saveAndLink(generatedPetProfile);
-		log.debug("-------retrievedPet {}", retrievedPet);
-
-		UserProfile generatedProfile = dataManager.generateUserProfile();
-		log.debug("-------generated profile {}", generatedProfile);
-
-		UserProfile retrievedProfile = gatewayService.putProfile(generatedProfile.getAvatarUrl(), generatedProfile);
-		log.debug("-------retrieved profile {}", retrievedProfile);
-
-		UserPetLink newLink = UserPetLink.builder()
-				.userLink(uriUtils.getSelfLinkFromUser(retrievedProfile))
-				.petLink(uriUtils.getPetLinkFromPet(retrievedPet))
-				.build();
-
-
-		gatewayService.link(newLink);
-
-		String petId = uriUtils.getIdFromLink(uriUtils.getPetLinkFromPet(retrievedPet));
-		log.debug("-------petId {}", petId);
-
-//		UserProfile fakeProfile = dataManager.generateUserProfile();
-//		fakeProfile.set_links(HalLinks.builder().self(new HashMap<>() {{
-//			put("href", "http://test/" + fakeProfile.getAvatarUrl());
-//		}}).build());
-//
-//		List<UserProfile> fakeOwners = Arrays.asList(fakeProfile);
-		List<UserProfile> owners = gatewayService.searchProfilesByPetIds(Arrays.asList(petId)).get_embedded().getProfiles();
-
-
-		assertFalse(isUserPresentInTheList(UUID.randomUUID().toString(), owners));
-	}
-
-	@Test
-	public void linkAndDeletePet(){
-		PetProfile generatedPetProfile = dataManager.generatePetProfile();
-		PetProfile retrievedPet = gatewayService.saveAndLink(generatedPetProfile);
-
-		UserProfile generatedProfile = dataManager.generateUserProfile();
-
-		UserProfile retrievedProfile = gatewayService.putProfile(generatedProfile.getAvatarUrl(), generatedProfile);
-
-		UserPetLink newLink = UserPetLink.builder()
-				.userLink(uriUtils.getSelfLinkFromUser(retrievedProfile))
-				.petLink(uriUtils.getPetLinkFromPet(retrievedPet))
-				.build();
-
-
-		gatewayService.link(newLink);
-
-		String petId = uriUtils.getIdFromLink(uriUtils.getPetLinkFromPet(retrievedPet));
-		log.debug("-------petId {}", petId);
-
-		List<UserProfile> owners = gatewayService.searchProfilesByPetIds(Arrays.asList(petId)).get_embedded().getProfiles();
-
-		assertTrue(isUserPresentInTheList(DEFAULT_USER_ID, owners));
-
-		gatewayService.deletePet(petId);
-
-
-	}
-
-
-	private boolean isUserPresentInTheList(String userId, List<UserProfile> owners){
-		return owners.stream().map(owner -> uriUtils.getSelfLinkFromUser(owner) )
-				.map(link -> uriUtils.getIdFromLink(link)).collect(Collectors.toList())
-				.contains(userId);
-	}
-
 
 
 }
