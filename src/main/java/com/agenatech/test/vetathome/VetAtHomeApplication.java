@@ -7,7 +7,6 @@ import org.springframework.hateoas.config.EnableHypermediaSupport;
 
 @SpringBootApplication
 @EnableFeignClients
-//@EnableHypermediaSupport(type = {})
 public class VetAtHomeApplication {
 
 	public static void main(String[] args) {

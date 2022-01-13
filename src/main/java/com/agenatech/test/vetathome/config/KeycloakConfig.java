@@ -16,4 +16,5 @@ public class KeycloakConfig {
     private String testUsername;
     private String testPassword;
     private String grantType;
+    private String adminSecret;
 }

@@ -4,10 +4,13 @@ auth-server:
   url: ${keycloak-client.server-url}
   client: web
   token-uri: auth/realms/${keycloak-client.realm}/protocol/openid-connect/token
+  cli-token-uri: auth/realms/master/protocol/openid-connect/token
   logout-uri: auth/realms/${keycloak-client.realm}/protocol/openid-connect/logout
+  users-uri: auth/admin/realms/${keycloak-client.realm}/users
   grant-type: password
   test-username: ion.ionetsss@gmail.com
   test_password: test
+  admin-secret: 530e9165-756c-4f2c-a9ac-5ff1c0cfd948
 keycloak-client:
   server-url: https://auth-dev.agenadev.com
   realm: vet-at-home

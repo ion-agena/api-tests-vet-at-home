@@ -1,12 +1,12 @@
 package com.agenatech.test.vetathome;
 
-import com.agenatech.test.vetathome.payload.response.AuthResponse;
 import com.agenatech.test.vetathome.payload.response.PetProfile;
 import com.agenatech.test.vetathome.payload.response.UserProfile;
 import com.agenatech.test.vetathome.service.DataManager;
 import com.agenatech.test.vetathome.service.GatewayService;
 import com.agenatech.test.vetathome.service.KeycloakService;
 import com.agenatech.test.vetathome.utils.UriUtils;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,14 +16,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import java.util.HashMap;
+import java.util.UUID;
+
+import static com.agenatech.test.vetathome.config.Constants.DEFAULT_PASSWORD;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Java6Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
-class VetAtHomeApplicationTests {
+class VetAtHomeApplicationPositiveTests {
 	@Autowired
 	private KeycloakService keycloakService;
 	@Autowired
@@ -50,15 +55,8 @@ class VetAtHomeApplicationTests {
 
 
 	@Test
-	public void t1(){
-		AuthResponse response = keycloakService.defaultLogin();
-		log.debug("------- res {}", response.accessToken());
-		assertFalse(response.accessToken().isEmpty());
-	}
-
-	@Test
 	public void getMe(){
-		UserProfile myProfile = gatewayService.getMyProfile();
+		UserProfile myProfile = gatewayService.getDefaultProfile();
 		log.debug("------- profile {}", myProfile);
 
 		assertTrue(DEFAULT_USER_ID.equals(uriUtils.getIdFromLink(uriUtils.getSelfLinkFromUser(myProfile))));
@@ -66,13 +64,15 @@ class VetAtHomeApplicationTests {
 
 	@Test
 	public void putProfile(){
-		UserProfile generatedProfile = dataManager.generateUserProfile();
-		log.debug("-------generated profile {}", generatedProfile);
+		String email = UUID.randomUUID() + "@mail.com";
+		keycloakService.signup(email, DEFAULT_PASSWORD);
+		UserProfile generatedProfile = dataManager.generateUserProfile(email);
 
-		UserProfile retrievedProfile = gatewayService.putProfile(generatedProfile.getAvatarUrl(), generatedProfile);
-		log.debug("-------retrieved profile {}", retrievedProfile);
+		gatewayService.putProfile(email, generatedProfile);
 
-		assertTrue(retrievedProfile.getEmail().equals(generatedProfile.getEmail()));
+		UserProfile retrievedProfile = gatewayService.getMyProfile(email);
+
+		assertTrue(retrievedProfile.getAvatarUrl().equals(generatedProfile.getAvatarUrl()));
 	}
 
 
@@ -95,6 +95,46 @@ class VetAtHomeApplicationTests {
 		String ownerLink = uriUtils.getSelfLinkFromUser(owner);
 
 		assertTrue(DEFAULT_USER_ID.equals(uriUtils.getIdFromLink(ownerLink)));
+	}
+
+	@Test
+	public void deleteProfile(){
+		String email = UUID.randomUUID() + "@mail.com";
+		keycloakService.signup(email, DEFAULT_PASSWORD);
+		UserProfile generatedProfile = dataManager.generateUserProfile(email);
+
+		gatewayService.putProfile(email, generatedProfile);
+
+		UserProfile retrievedProfile = gatewayService.getMyProfile(email);
+
+		assertTrue(retrievedProfile.getAvatarUrl().equals(generatedProfile.getAvatarUrl()));
+
+		log.debug("-----------continue");
+
+		gatewayService.deleteMyProfile(email);
+
+		Throwable thrown = catchThrowable(() -> gatewayService.getMyProfile(email));
+
+		assertThat(thrown)
+				.isInstanceOf(FeignException.NotFound.class);
+
+	}
+
+	@Test
+	public void patchProfile(){
+		String email = UUID.randomUUID() + "@mail.com";
+		keycloakService.signup(email, DEFAULT_PASSWORD);
+		UserProfile generatedProfile = dataManager.generateUserProfile(email);
+
+		gatewayService.putProfile(email, generatedProfile);
+
+		var newFieldValue = new HashMap<String, String>();
+		String newValue = UUID.randomUUID().toString();
+		newFieldValue.put("avatarUrl", newValue);
+
+		UserProfile retrievedProfile = gatewayService.patchProfile(email, newFieldValue);
+
+		assertTrue(retrievedProfile.getAvatarUrl().equals(newValue));
 	}
 
 

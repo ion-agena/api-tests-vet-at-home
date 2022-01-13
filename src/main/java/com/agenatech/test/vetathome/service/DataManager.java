@@ -18,6 +18,16 @@ public class DataManager {
                 .build();
     }
 
+    public UserProfile generateUserProfile(String email){
+        String id = UUID.randomUUID().toString();
+        return UserProfile.builder()
+                .email(email)
+                .firstName("fn " + id)
+                .lastName("ln " + id)
+                .avatarUrl(id)
+                .build();
+    }
+
     public PetProfile generatePetProfile(){
         String id = UUID.randomUUID().toString();
         return PetProfile.builder()
